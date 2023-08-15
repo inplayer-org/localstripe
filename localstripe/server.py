@@ -322,24 +322,18 @@ app.router.add_delete('/_config/data', flush_store)
 
 def start():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--port', type=int, default=8420)
+    parser.add_argument('--path')
     parser.add_argument('--from-scratch', action='store_true')
     args = parser.parse_args()
 
     if not args.from_scratch:
         store.try_load_from_disk()
 
-    # Listen on both IPv4 and IPv6
-    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind(('::', args.port))
-
     logger = logging.getLogger('aiohttp.access')
     logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler())
 
-    web.run_app(app, sock=sock, access_log=logger)
-
+    web.run_app(app, path=args.path, access_log=logger)
 
 if __name__ == '__main__':
     start()
